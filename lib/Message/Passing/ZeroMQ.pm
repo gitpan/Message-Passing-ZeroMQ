@@ -5,7 +5,7 @@ use POSIX::AtFork ();
 use Sub::Name;
 use namespace::autoclean;
 
-our $VERSION = "0.003";
+our $VERSION = "0.004";
 $VERSION = eval $VERSION;
 
 our @_WITH_CONTEXTS;
@@ -151,7 +151,7 @@ Tomas (t0m) Doran <bobtfish@bobtfish.net>
 =head1 SPONSORSHIP
 
 This module exists due to the wonderful people at Suretec Systems Ltd.
-<http://www.suretecsystems.com/> who sponsored it's development for its
+<http://www.suretecsystems.com/> who sponsored its development for its
 VoIP division called SureVoIP <http://www.surevoip.co.uk/> for use with
 the SureVoIP API - 
 <http://www.surevoip.co.uk/support/wiki/api_documentation>

@@ -29,9 +29,7 @@ sub _try_rx {
     my $self = shift();
     my $msg = $self->_zmq_recv(ZMQ_NOBLOCK);
     if ($msg) {
-        my $data = try { $self->decode($msg->data) }
-            catch { warn $_ };
-        $self->output_to->consume($data);
+        $self->output_to->consume($msg->data);
     }
     return $msg;
 }
@@ -97,7 +95,7 @@ Message::Passing::Input::ZeroMQ - input messages from ZeroMQ.
 =head1 SPONSORSHIP
 
 This module exists due to the wonderful people at Suretec Systems Ltd.
-<http://www.suretecsystems.com/> who sponsored it's development for its
+<http://www.suretecsystems.com/> who sponsored its development for its
 VoIP division called SureVoIP <http://www.surevoip.co.uk/> for use with
 the SureVoIP API - 
 <http://www.surevoip.co.uk/support/wiki/api_documentation>

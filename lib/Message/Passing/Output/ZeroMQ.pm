@@ -21,8 +21,7 @@ after setsockopt => sub {
 sub consume {
     my $self = shift;
     my $data = shift;
-    my $bytes = $self->encode($data);
-    $self->_zmq_send($bytes);
+    $self->_zmq_send($data);
 }
 
 with 'Message::Passing::Role::Output';
@@ -79,7 +78,7 @@ Sends a message.
 =head1 SPONSORSHIP
 
 This module exists due to the wonderful people at Suretec Systems Ltd.
-<http://www.suretecsystems.com/> who sponsored it's development for its
+<http://www.suretecsystems.com/> who sponsored its development for its
 VoIP division called SureVoIP <http://www.surevoip.co.uk/> for use with
 the SureVoIP API - 
 <http://www.surevoip.co.uk/support/wiki/api_documentation>
