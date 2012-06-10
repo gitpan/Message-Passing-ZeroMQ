@@ -19,10 +19,11 @@ has '+_socket' => (
 
 sub _socket_type { 'SUB' }
 
+sub _build_socket_hwm { 100000 }
+
 after setsockopt => sub {
     my ($self, $socket) = @_;
     $socket->setsockopt(ZMQ_SUBSCRIBE, '');
-    $socket->setsockopt(ZMQ_HWM, 100000); # Buffer up to 100k messages.
 };
 
 sub _try_rx {
@@ -74,7 +75,20 @@ sub BUILD {
 
 Message::Passing::Input::ZeroMQ - input messages from ZeroMQ.
 
+=head1 SYNOPSIS
+
+    message-passing --output STDOUT --input ZeroMQ --input_options '{"socket_bind":"tcp://*:5552"}'
+
 =head1 DESCRIPTION
+
+A L<Message::Passing> ZeroMQ input class.
+
+Can be used as part of a chain of classes with the L<message-passing> utility, or directly as
+an input with L<Message::Passing::DSL>.
+
+=head1 ATTRIBUTES
+
+See L<Message::Passing::ZeroMQ/CONNECTION ATTRIBUTES>
 
 =head1 SEE ALSO
 
