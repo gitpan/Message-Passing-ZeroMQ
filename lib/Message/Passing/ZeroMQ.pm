@@ -1,11 +1,12 @@
 package Message::Passing::ZeroMQ;
-use Moose ();
+use strict;
+use warnings;
 use ZeroMQ qw/ :all /;
 use POSIX::AtFork ();
 use Sub::Name;
-use namespace::autoclean;
+use namespace::clean -except => 'meta';
 
-our $VERSION = "0.005";
+our $VERSION = "0.006";
 $VERSION = eval $VERSION;
 
 our @_WITH_CONTEXTS;

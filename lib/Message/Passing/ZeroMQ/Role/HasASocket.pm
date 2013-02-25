@@ -1,18 +1,24 @@
 package Message::Passing::ZeroMQ::Role::HasASocket;
-use Moose::Role;
+use Moo::Role;
 use ZeroMQ ':all';
-use Moose::Util::TypeConstraints;
-use namespace::autoclean;
+use MooX::Types::MooseLike::Base qw/ :all /;
+use namespace::clean -except => 'meta';
 
 with 'Message::Passing::ZeroMQ::Role::HasAContext';
 
 has _socket => (
     is => 'ro',
-    isa => 'ZeroMQ::Socket',
+#    isa => 'ZeroMQ::Socket',
     lazy => 1,
     builder => '_build_socket',
     predicate => '_has_socket',
     clearer => '_clear_socket',
+);
+
+has socket_builder => (
+    is        => 'ro',
+    isa       => CodeRef,
+    predicate => '_has_socket_builder',
 );
 
 before _clear_ctx => sub {
@@ -28,12 +34,16 @@ requires '_socket_type';
 
 has linger => (
     is => 'ro',
-    isa => 'Bool',
-    default => 0,
+    default => sub { 0 },
+    isa => Int,
 );
 
 sub _build_socket {
     my $self = shift;
+
+    return $self->socket_builder->($self, $self->_ctx)
+        if $self->_has_socket_builder;
+
     my $type_name = "ZeroMQ::Constants::ZMQ_" . $self->socket_type;
     my $socket = $self->_ctx->socket(do { no strict 'refs'; &$type_name() });
     if (!$self->linger) {
@@ -46,34 +56,40 @@ sub _build_socket {
     if ($self->_should_bind) {
         $socket->bind($self->socket_bind);
     }
+    if (!$self->_should_connect && !$self->_should_bind) {
+        use Data::Dumper;
+        die "Neither asked to connect or bind, invalid" . Dumper($self);
+    }
     $socket;
 }
 
 has socket_hwm => (
     is => 'ro',
-    isa => 'Int',
+    isa => Int,
     builder => '_build_socket_hwm',
+    lazy => 1,
 );
 
 sub setsockopt {
     my ($self, $socket) = @_;
     $socket->setsockopt(ZMQ_HWM, $self->socket_hwm);
-};
+}
 
 has socket_bind => (
     is => 'ro',
-    isa => 'Str',
+    isa => Str,
     predicate => '_should_bind',
 );
 
 has socket_type => (
-    isa => enum([qw[PUB SUB PUSH PULL]]),
+#    isa => enum([qw[PUB SUB PUSH PULL]]),
     is => 'ro',
     builder => '_socket_type',
+    lazy => 1,
 );
 
 has connect => (
-    isa => 'Str',
+    isa => Str,
     is => 'ro',
     predicate => '_should_connect',
 );
@@ -143,6 +159,24 @@ messages are likely to be discarded once this high water mark is exceeded
 A value of 0 disables the high water mark, meaning that messages will be
 buffered until RAM runs out.
 
+=head3 socket_builder
+
+A code reference returning a new L<ZeroMQ::Socket> instance within a new
+L<ZeroMQ::Context> every time it is called.
+
+If a value this attribute is provided, responsibility for building sockets is
+solely the callback's responsibility. None of the other attributes usually
+involved in creating sockets, such as C<socket_type>, C<linger>, or
+C<socket_hmw> will be taken into account automatically.
+
+If a socket builder callback needs to make use of the aforementioned attributes,
+it will have to do so manually by looking at the object implementing
+C<Message::Passing::ZeroMQ::Role::HasASocket>, which is going to be passed to
+the callback as the first argument upon invocation.
+
+The second and final argument passed to the callback with be a newly
+L<ZeroMQ::Context> that the new socket is expected to be created in.
+
 =head1 METHODS
 
 =head2 setsockopt
@@ -155,7 +189,7 @@ is created.
 This module exists due to the wonderful people at Suretec Systems Ltd.
 <http://www.suretecsystems.com/> who sponsored its development for its
 VoIP division called SureVoIP <http://www.surevoip.co.uk/> for use with
-the SureVoIP API - 
+the SureVoIP API -
 <http://www.surevoip.co.uk/support/wiki/api_documentation>
 
 =head1 AUTHOR, COPYRIGHT AND LICENSE

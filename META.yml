@@ -22,15 +22,15 @@ no_index:
     - t
 requires:
   AnyEvent: 0
-  Message::Passing: 0.006
-  Moose: 0
+  Message::Passing: 0.011
+  Moo: 0.091011
   POSIX::AtFork: 0.02
   Sub::Name: 0
   Task::Weaken: 0
   Try::Tiny: 0
   ZeroMQ: 0.21
-  namespace::autoclean: 0
+  namespace::clean: 0
 resources:
   repository: git://github.com/suretec/Message-Passing-ZeroMQ.git
-version: 0.005
+version: 0.006
 x_authority: GHENRY
